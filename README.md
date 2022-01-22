@@ -1,4 +1,4 @@
-A React abstraction for the [LGL-Raytracer](http://lgltracer.com/). This is for photorealistic 
+A React abstraction for the [LGL-Raytracer](http://lgltracer.com/). Although it can move along and has some options that make movement faster (downsampling etc), this is mostly for photorealistic still-images that can take a while to process but will look absolutely stunning. 
 
 ```shell
 npm install @react-three/lgl
@@ -42,4 +42,18 @@ import { Environment } from '@react-three/drei'
       <Scene />
     </Raytracer>
     <Environment preset="city" />
+```
+
+### Movement
+
+Your scene has to be static, it will ignore moving parts. This will never be fast enough for runtime usage but you can get away with some camera movement by lowering your resolution (and your expectations). Do not forget to mark your controls as `makeDefault` so that the raycaster can react to it. Try something like this for example:
+
+```jsx
+import { OrbitControls } from '@react-three/drei'
+
+<Canvas dpr={1}>
+  <Raytracer samples={32} bounces={3} enableTemporalDenoise enableSpatialDenoise movingDownsampling>
+    ...
+  </Raytracer>
+  <OrbitControls makeDefault />
 ```
