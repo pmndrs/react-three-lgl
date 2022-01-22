@@ -1,4 +1,4 @@
-A React(-[three-fiber](https://github.com/pmndrs/react-three-fiber)) abstraction for the [LGL-Raytracer](http://lgltracer.com/). It does its best to completely remove all complexity from the otherwise daring task of having to integrate a raytracer. You can build your scenes as you always would. Although it can move along and has some options that make movement faster (downsampling etc), this is mostly for photorealistic still-images that can take a while to process but will look absolutely stunning.
+A React(-[three-fiber](https://github.com/pmndrs/react-three-fiber)) abstraction for the [LGL-Raytracer](http://lgltracer.com/). It does its best to remove all unwanted complexity, you can build your scenes as you always would. Although it can move along and has some options that make movement faster (downsampling etc), this is mostly for photorealistic still-images that can take a while to process but will look absolutely stunning. It is side-effect free, when you unmount it goes back to default WebGLRenderer.
 
 Demo: https://codesandbox.io/s/basic-demo-forked-rnuve
 
