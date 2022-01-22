@@ -54,7 +54,12 @@ Your scene has to be static, it will ignore moving parts. This will never be fas
 import { OrbitControls } from '@react-three/drei'
 
 <Canvas dpr={1}>
-  <Raytracer samples={32} bounces={3} enableTemporalDenoise enableSpatialDenoise movingDownsampling>
+  <Raytracer
+    samples={32}
+    bounces={3}
+    enableTemporalDenoise
+    enableSpatialDenoise
+    movingDownsampling>
     ...
   </Raytracer>
   <OrbitControls makeDefault />
