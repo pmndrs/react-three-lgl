@@ -1,4 +1,4 @@
-![](/snap.jpg)
+![](/examples.jpg)
 
 A React(-[three-fiber](https://github.com/pmndrs/react-three-fiber)) abstraction for the [LGL-Raytracer](http://lgltracer.com/).
 
