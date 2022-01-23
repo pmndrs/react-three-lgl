@@ -35,6 +35,29 @@ function App() {
 
 Otherwise `<Raytracer>` takes all the LGL raytracer's options: https://lgltracer.com/docs/index.html#/api/LGLTracerRenderer
 
+### Lights
+
+LGL ignores threejs lights, it wants to use its own. But in three-fiber you can simply extend, and now the JSX natives will refer to LGL.
+
+```jsx
+import { extend } from '@react-three/fiber'
+import { PointLight, RectAreaLight } from 'lgl-tracer'
+
+extend({ PointLight, RectAreaLight })
+
+<rectAreaLight width={2} height={2} position={[3, 3, 3]} />
+<pointLight position={[-3, 3, -10]} />
+```
+
+If you plan to switch between renderers you can make lights opt in.
+
+```jsx
+extend({ LglPointLight: PointLight, LglRectAreaLight: RectAreaLight })
+
+<lglPointLight />
+<lglRectAreaLight />
+```
+
 ### Environmental lighting
 
 Simply drop the `<Environment>` component from drei into your scene, it knows how to work with that ootb, just make sure both the raytracer and the environment are under the same suspense boundary so that they are in sync.
