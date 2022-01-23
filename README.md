@@ -68,3 +68,23 @@ import { OrbitControls } from '@react-three/drei'
   </Raytracer>
   <OrbitControls makeDefault />
 ```
+
+### Screenshots
+
+In order to obtain a screenshot the drawing-buffer has to be preserved, this is a setting in Threejs.
+
+```jsx
+import { Canvas, useThree } from '@react-three/fiber'
+
+<Canvas gl={{ preserveDrawingBuffer: true }}>
+  <Raycaster>
+    </Scene>
+    
+...
+const gl = useThree(state => state.gl)
+...
+const link = document.createElement('a')
+link.setAttribute('download', 'canvas.png')
+link.setAttribute('href', gl.domElement.toDataURL('image/png').replace('image/png', 'image/octet-stream'))
+link.click()
+```
