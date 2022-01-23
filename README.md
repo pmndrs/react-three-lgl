@@ -22,7 +22,7 @@ function App() {
           <sphereGeometry args={[1, 64, 64]} />
           <meshStandardMateral />
         </mesh>
-        <directionalLight position={[10, 10, 10]} />
+        ...
       </Raytracer>
     </Canvas>
   )
