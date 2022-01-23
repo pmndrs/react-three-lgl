@@ -5,6 +5,7 @@ A React(-[three-fiber](https://github.com/pmndrs/react-three-fiber)) abstraction
 It does its best to remove all unwanted complexity, you can build your scenes as you always would. Although it can move along and has some options that make movement faster (downsampling etc), this is mostly for photorealistic still-images that can take a while to process but will look absolutely stunning. It is side-effect free, when you unmount it goes back to default WebGLRenderer.
 
 Demo: https://codesandbox.io/s/basic-demo-forked-rnuve
+Simple studio setup: https://codesandbox.io/s/lgl-raytracer-forked-8yfnd
 
 ```shell
 npm install @react-three/lgl
