@@ -4,7 +4,7 @@ A React(-[three-fiber](https://github.com/pmndrs/react-three-fiber)) abstraction
 
 It does its best to remove all unwanted complexity, you can build your scenes as you always would. Although it can move along and has some options that make movement faster (downsampling etc), this is mostly for photorealistic still-images that can take a while to process but will look absolutely stunning. It is side-effect free, when you unmount it goes back to default WebGLRenderer.
 
-Demo: https://codesandbox.io/s/basic-demo-forked-rnuve
+Demos: [sandbox](https://codesandbox.io/s/basic-demo-forked-rnuve), [studio-setup](https://codesandbox.io/s/lgl-raytracer-forked-8yfnd)
 
 ```shell
 npm install @react-three/lgl
@@ -22,7 +22,7 @@ function App() {
           <sphereGeometry args={[1, 64, 64]} />
           <meshStandardMateral />
         </mesh>
-        <directionalLight position={[10, 10, 10]} />
+        ...
       </Raytracer>
     </Canvas>
   )
@@ -34,6 +34,29 @@ function App() {
 - `samples`, How many frames it takes to complete a still-image, `64` by default. Set this to something higher if you want to wait for high-quality images. 
 
 Otherwise `<Raytracer>` takes all the LGL raytracer's options: https://lgltracer.com/docs/index.html#/api/LGLTracerRenderer
+
+### Lights
+
+LGL ignores threejs lights, it wants to use its own. But in three-fiber you can simply extend, and now the JSX natives will refer to LGL.
+
+```jsx
+import { extend } from '@react-three/fiber'
+import { PointLight, RectAreaLight } from 'lgl-tracer'
+
+extend({ PointLight, RectAreaLight })
+
+<rectAreaLight width={2} height={2} position={[3, 3, 3]} />
+<pointLight position={[-3, 3, -10]} />
+```
+
+If you plan to switch between renderers you can make lights opt in.
+
+```jsx
+extend({ LglPointLight: PointLight, LglRectAreaLight: RectAreaLight })
+
+<lglPointLight />
+<lglRectAreaLight />
+```
 
 ### Environmental lighting
 
