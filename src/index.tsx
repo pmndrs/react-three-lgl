@@ -3,72 +3,104 @@ import * as React from 'react'
 import { LGLTracerRenderer } from 'lgl-tracer'
 import { useThree, useFrame, ThreeEvent } from '@react-three/fiber'
 
-type Props = {
+export type RaytracerProps = {
   children: React.ReactNode
+  /** Number of samples until rendering stops. Default: 64 */
   samples?: number
+  /** useFrame render index. Default: 1 */
   renderIndex?: number
+  /** The number of times the light bounces per path, at least 2 times and at most 8 times. Default: 2 */
+  bounces?: number
+  /** Set the intensity of the environment lighting. Default: 1 */
+  envMapIntensity?: number
+  /** Whether to display the enviroment background (does not affect the lighting of scene objects). Default: true */
+  enviromentVisible?: boolean
+  /** Whether to enable the SVGF(Spatiotemporal Variance-Guided Filter) denoise pass. SVGF pass include temporal and spatial part, controlled by two independent switches. Default: false */
+  enableDenoise?: boolean
+  /** Whether to enable the temporal part denoise. temporal denoise will turn on the reprojection pass, reuse effective information in historical pixels for denoise, and pass the variance factor to spatial denoise. Default: true */
+  enableTemporalDenoise?: boolean
+  /** Whether to enable the spatial part denoise. spatial denoise will turn on the A-Tours filter pass. Default: true */
+  enableSpatialDenoise?: boolean
+  /** The callback method after the complete sampling of a frame is rendered, for example, to ensure that the screenshot from the canvas is successful. */
+  fullSampleCallback?: () => void
+  /** Whether to downsample during camera movement (to maintain frame rate). Default: false */
+  movingDownsampling?: boolean
+  /** Whether to keep sampling when canvas element off focus. Default: true */
+  renderWhenOffFocus?: boolean
+  /** Set the method used in ToneMapping pass. including several methods built-in support in threejs. Default: THREE.LinearToneMapping */
+  toneMapping?: number
+  /** Whether to use tile rendering, if enabled, the screen space will be divided according to the frame rate and then rendered block by block. Default: false */
+  useTileRender?: boolean
 }
 
-export function Raytracer({ children, renderIndex = 1, samples = 64, ...props }: Props) {
-  const ref = React.useRef<THREE.Scene>(null!)
-  const { scene, controls, camera, gl, size, viewport } = useThree()
+const Raytracer = React.forwardRef(
+  ({ children, renderIndex = 1, samples = 64, ...props }: RaytracerProps, forwardRef) => {
+    const ref = React.useRef<THREE.Scene>(null!)
+    const { scene, controls, camera, gl, size, viewport } = useThree()
 
-  const renderer = React.useRef<LGLTracerRenderer>()
-  React.useEffect(() => {
-    renderer.current = new LGLTracerRenderer({
-      // Fake a canvas to trick LGL into using the existing WebGL context
-      canvas: { getContext: gl.getContext, getExtension: (gl as any).getExtension },
-      // Silence console logs
-      loadingCallback: { onProgress: () => null, onComplete: () => null },
-    })
-    // Use the existing canvas and WebGL context
-    renderer.current.canvas = gl.domElement
-    renderer.current.gl = gl.getContext()
-    // Reuse the default scenes background
-    renderer.current.enviromentVisible = !!scene.background
-    ref.current.environment = scene.environment
-    return () => {
-      renderer.current.canvas = null
-      renderer.current.gl = null
-      renderer.current.pipeline = null
-    }
-  }, [])
+    const renderer = React.useRef<LGLTracerRenderer>()
+    React.useEffect(() => {
+      renderer.current = new LGLTracerRenderer({
+        // Fake a canvas to trick LGL into using the existing WebGL context
+        canvas: { getContext: gl.getContext, getExtension: (gl as any).getExtension },
+        // Silence console logs
+        loadingCallback: { onProgress: () => null, onComplete: () => null },
+      })
+      // Use the existing canvas and WebGL context
+      renderer.current.canvas = gl.domElement
+      renderer.current.gl = gl.getContext()
+      // Reuse the default scenes background
+      renderer.current.enviromentVisible = !!scene.background
+      ref.current.environment = scene.environment
+      return () => {
+        renderer.current.canvas = null
+        renderer.current.gl = null
+        renderer.current.pipeline = null
+      }
+    }, [])
 
-  const update = React.useCallback((render = true) => {
-    if (renderer.current) {
-      renderer.current.needsUpdate = true
-      if (render) renderer.current.render(ref.current, camera)
-    }
-  }, [])
+    const update = React.useCallback((render = true) => {
+      if (renderer.current) {
+        renderer.current.needsUpdate = true
+        if (render) renderer.current.render(ref.current, camera)
+      }
+    }, [])
 
-  React.useEffect(() => {
-    Object.assign(renderer.current, props)
-    update()
-  }, [props])
+    React.useEffect(() => {
+      Object.assign(renderer.current, props)
+      update()
+    }, [props])
 
-  React.useEffect(() => {
-    renderer.current.buildScene(ref.current, camera).then(() => update(false))
-  }, [])
+    React.useEffect(() => {
+      renderer.current.buildScene(ref.current, camera).then(update)
+    }, [])
 
-  React.useEffect(() => {
-    if (controls) {
-      // Update when the camera changes
-      controls.addEventListener('start', update)
-      return () => controls.removeEventListener('start', update)
-    }
-  }, [controls])
+    React.useEffect(() => {
+      if (controls) {
+        // Update when the camera changes
+        controls.addEventListener('start', update)
+        return () => controls.removeEventListener('start', update)
+      }
+    }, [controls])
 
-  React.useEffect(() => {
-    // Update on size and pixel-ratio changes
-    renderer.current.setSize(size.width, size.height)
-    renderer.current.setPixelRatio(viewport.dpr)
-    update()
-  }, [size, viewport])
+    React.useEffect(() => {
+      // Update on size and pixel-ratio changes
+      renderer.current.setSize(size.width, size.height)
+      renderer.current.setPixelRatio(viewport.dpr)
+      update()
+    }, [size, viewport])
 
-  useFrame(() => {
-    // Render out, as long as the total number of samples is not reached
-    if (renderer.current && renderer.current.getTotalSamples() < samples) renderer.current.render(ref.current, camera)
-  }, renderIndex)
+    // Allow user land to access the renderer as a ref
+    React.useImperativeHandle(forwardRef, () => renderer.current, [])
 
-  return <scene ref={ref}>{children}</scene>
-}
+    useFrame(() => {
+      // Render out, as long as the total number of samples is not reached
+      if (renderer.current && renderer.current.pipeline && renderer.current.getTotalSamples() < samples)
+        renderer.current.render(ref.current, camera)
+    }, renderIndex)
+
+    return <scene ref={ref}>{children}</scene>
+  }
+)
+
+export { Raytracer }
