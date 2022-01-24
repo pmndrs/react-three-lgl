@@ -1,6 +1,6 @@
 {
   "name": "@react-three/lgl",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A React abstraction for the LGL Raytracer",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
