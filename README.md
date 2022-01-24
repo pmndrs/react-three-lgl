@@ -31,7 +31,7 @@ function App() {
 
 ### Options
 
-- `samples`, How many frames it takes to complete a still-image, `64` by default. Set this to something higher if you want to wait for high-quality images. 
+- `samples`, How many frames it takes to complete a still-image, `64` by default. Set this to something higher if you want to wait for high-quality images, or `Infinity` if you want it to go on forever, but keep in mind that raytracing is very expensive!
 
 Otherwise `<Raytracer>` takes all the LGL raytracer's options: https://lgltracer.com/docs/index.html#/api/LGLTracerRenderer
 

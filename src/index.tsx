@@ -31,14 +31,23 @@ export type RaytracerProps = {
   toneMapping?: number
   /** Whether to use tile rendering, if enabled, the screen space will be divided according to the frame rate and then rendered block by block. Default: false */
   useTileRender?: boolean
+  /** Set svgf reproject pass's color blend factor, the factor is used to determine the weight of mixing the current frame and the history frame. Default: 0.2 */
+  denoiseColorBlendFactor?: number
+  /** Set svgf reproject pass's moment variance blend factor, the factor is used to determine the weight of mixing the current frame and the history frame. Default: 0.2 */
+  denoiseMomentBlendFactor?: number
+  /** Set svgf a-tours filter pass's color threshold value. Default: 0.5 */
+  denoiseColorFactor?: number
+  /** Set svgf a-tours filter pass's position threshold value. Default: 0.35 */
+  denoisePositionFactor?: number
 }
 
 const Raytracer = React.forwardRef(
   ({ children, renderIndex = 1, samples = 64, ...props }: RaytracerProps, forwardRef) => {
     const ref = React.useRef<THREE.Scene>(null!)
+    const renderer = React.useRef<LGLTracerRenderer>()
     const { scene, controls, camera, gl, size, viewport } = useThree()
 
-    const renderer = React.useRef<LGLTracerRenderer>()
+    // Set up the renderer
     React.useEffect(() => {
       renderer.current = new LGLTracerRenderer({
         // Fake a canvas to trick LGL into using the existing WebGL context
@@ -59,42 +68,54 @@ const Raytracer = React.forwardRef(
       }
     }, [])
 
-    const update = React.useCallback((render = true) => {
+    // Update function for refreshing the renderer
+    const update = React.useCallback(() => {
       if (renderer.current) {
         renderer.current.needsUpdate = true
-        if (render) renderer.current.render(ref.current, camera)
+        if (renderer.current.pipeline) renderer.current.render(ref.current, camera)
       }
     }, [])
 
+    // Update when props are assigned to the renderer
     React.useEffect(() => {
-      Object.assign(renderer.current, props)
+      const {
+        denoiseColorBlendFactor,
+        denoiseMomentBlendFactor,
+        denoiseColorFactor,
+        denoisePositionFactor,
+        ...parameters
+      } = props
+      Object.assign(renderer.current, parameters)
+      if (denoiseColorBlendFactor !== undefined) renderer.current.setDenoiseColorBlendFactor(denoiseColorBlendFactor)
+      if (denoiseMomentBlendFactor !== undefined) renderer.current.setDenoiseMomentBlendFactor(denoiseMomentBlendFactor)
+      if (denoiseColorFactor !== undefined) renderer.current.setDenoiseColorFactor(denoiseColorFactor)
+      if (denoisePositionFactor !== undefined) renderer.current.setDenoisePositionFactor(denoisePositionFactor)
       update()
     }, [props])
 
-    React.useEffect(() => {
-      renderer.current.buildScene(ref.current, camera).then(update)
-    }, [])
-
+    // Update when the camera is being dragged/controlled
     React.useEffect(() => {
       if (controls) {
-        // Update when the camera changes
         controls.addEventListener('start', update)
         return () => controls.removeEventListener('start', update)
       }
     }, [controls])
 
+    // Update on size and pixel-ratio changes
     React.useEffect(() => {
-      // Update on size and pixel-ratio changes
       renderer.current.setSize(size.width, size.height)
       renderer.current.setPixelRatio(viewport.dpr)
       update()
     }, [size, viewport])
 
+    // Let it build the scene
+    React.useEffect(() => void renderer.current.buildScene(ref.current, camera).then(update), [])
+
     // Allow user land to access the renderer as a ref
     React.useImperativeHandle(forwardRef, () => renderer.current, [])
 
+    // Render out, as long as the total number of samples is not reached
     useFrame(() => {
-      // Render out, as long as the total number of samples is not reached
       if (renderer.current && renderer.current.pipeline && renderer.current.getTotalSamples() < samples)
         renderer.current.render(ref.current, camera)
     }, renderIndex)
