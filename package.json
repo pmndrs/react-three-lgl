@@ -70,7 +70,6 @@
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": "^7.0.4",
-    "lgl-tracer": "^1.0.5",
     "lint-staged": "^11.2.6",
     "prettier": "^2.4.1",
     "react": "^17.0.1",
@@ -79,5 +78,8 @@
     "rollup-plugin-terser": "^7.0.2",
     "three": "^0.136.0",
     "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "lgl-tracer": "^1.0.6"
   }
 }

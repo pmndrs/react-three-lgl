@@ -3648,10 +3648,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-lgl-tracer@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/lgl-tracer/-/lgl-tracer-1.0.5.tgz#2cf4f8e37a173d1deae93583f913218ce06c23cd"
-  integrity sha512-ABO7ide23Cq6+mzW33XoHrsx5Zb5JG8zha4MFA3uQkDE9CX3okbdYqFB50oUKMnntjMqaNANB312kkruTsA1+g==
+lgl-tracer@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/lgl-tracer/-/lgl-tracer-1.0.6.tgz#69ab43f254ef12a1cef6799a7ae5a066e981a375"
+  integrity sha512-xHnS8FXYxOrO/FbfRuYY/CBKsC6wh/2mSeSoWIZAp+5R5VxspA4RcQCk+WmU7zcfokuACyUQwat4UdE39Y8X5Q==
 
 lines-and-columns@^1.1.6:
   version "1.2.4"
